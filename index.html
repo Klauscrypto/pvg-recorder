@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PVG Recorder">
+<meta name="theme-color" content="#ffffff">
+<title>Pilsner Vertriebs GmbH · Recorder v2</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+:root{
+  --ac:#1d4ed8;--ac2:#1e40af;--acs:#eff6ff;--acb:#bfdbfe;
+  --g1:#f8f9fa;--g2:#f0f0f0;--g3:#e0e0e0;--g4:#c0c0c0;--g5:#888;--g6:#555;--g7:#222;
+  --wh:#fff;--gr:#16a34a;--grs:#f0fdf4;--grb:#bbf7d0;
+  --or:#d97706;--ors:#fffbeb;--orb:#fde68a;
+  --re:#dc2626;--res:#fef2f2;
+  --pu:#7c3aed;--pus:#f5f3ff;--pub:#ddd6fe;
+  --r:14px;--rs:8px;
+  --f:'Inter',sans-serif;--m:'Space Mono',monospace;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.05);
+  --sh2:0 4px 6px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--f);background:var(--g1);color:var(--g7);min-height:100dvh;max-width:430px;margin:0 auto}
+.hdr{background:var(--wh);border-bottom:1px solid var(--g3);padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh)}
+.logo{font-size:13px;font-weight:800;color:var(--ac);letter-spacing:-.2px}
+.logo-sub{font-size:9px;color:var(--g5);font-family:var(--m);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.net-badge,.lang-btn,.gdrive-btn{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:var(--m)}
+.online{background:var(--grs);color:var(--gr);border:1px solid var(--grb)}
+.offline{background:var(--res);color:var(--re);border:1px solid #fecaca}
+.lang-btn{border:1px solid var(--g3);background:var(--g2);color:var(--g6);cursor:pointer}
+.gdrive-btn{border:1px solid var(--acb);background:var(--acs);color:var(--ac);cursor:pointer}
+.gdrive-btn.connected{background:var(--grs);color:var(--gr);border-color:var(--grb)}
+.tabs{display:flex;background:var(--wh);border-bottom:1px solid var(--g3);position:sticky;top:49px;z-index:99;box-shadow:var(--sh)}
+.tab{flex:1;padding:10px 3px;text-align:center;font-size:10px;font-weight:700;color:var(--g5);cursor:pointer;border-bottom:2px solid transparent;font-family:var(--m);white-space:nowrap}
+.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
+.page{display:none;padding:14px 14px 100px}.page.active{display:block}
+.card{background:var(--wh);border:1px solid var(--g3);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.card label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g5);margin-bottom:6px}
+.card input,.card select,.card textarea{width:100%;border:1px solid var(--g3);border-radius:var(--rs);padding:9px 12px;font-size:14px;font-family:var(--f);color:var(--g7);background:var(--g1);outline:none;resize:none}
+.card input:focus,.card select:focus,.card textarea:focus{border-color:var(--ac);background:var(--wh);box-shadow:0 0 0 3px rgba(29,78,216,.08)}
+.btn{width:100%;padding:13px;border:none;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;font-family:var(--f);transition:all .15s}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-ac{background:var(--ac);color:var(--wh);box-shadow:0 2px 8px rgba(29,78,216,.25)}
+.btn-gr{background:var(--grs);color:var(--gr);border:1px solid var(--grb)}
+.btn-bl{background:var(--acs);color:var(--ac);border:1px solid var(--acb)}
+.btn-or{background:var(--ors);color:var(--or);border:1px solid var(--orb)}
+.btn-pu{background:var(--pus);color:var(--pu);border:1px solid var(--pub)}
+.btn-re{background:var(--res);color:var(--re);border:1px solid #fecaca}
+.btn-dk{background:var(--g7);color:var(--wh)}
+.mode-sw{display:flex;background:var(--g2);border:1px solid var(--g3);border-radius:var(--r);padding:3px;margin-bottom:10px;gap:3px}
+.mode-btn{flex:1;padding:9px;border:none;border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--f);color:var(--g5);background:transparent;transition:all .2s}
+.mode-btn.active{background:var(--wh);color:var(--g7);box-shadow:var(--sh)}
+.rec-wrap{display:flex;justify-content:center;margin:16px 0 12px}
+.rec-btn{width:100px;height:100px;border-radius:50%;border:none;background:var(--ac);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;gap:5px;box-shadow:0 4px 20px rgba(29,78,216,.3);position:relative}
+.rec-btn:active{transform:scale(.92)}
+.rec-btn.recording{background:var(--re);box-shadow:0 4px 20px rgba(220,38,38,.4);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 4px 20px rgba(220,38,38,.3)}50%{box-shadow:0 4px 32px rgba(220,38,38,.6)}}
+.rec-btn svg{width:30px;height:30px;fill:white}
+.rec-dot{width:9px;height:9px;border-radius:50%;background:white;position:absolute;top:15px;right:15px;display:none}
+.rec-btn.recording .rec-dot{display:block;animation:blink .8s infinite}
+@keyframes blink{0%,100%{opacity:.9}50%{opacity:0}}
+.rec-lbl{font-size:11px;font-weight:700;color:white;letter-spacing:.5px}
+.timer{text-align:center;font-size:36px;font-weight:800;font-family:var(--m);font-variant-numeric:tabular-nums;margin-bottom:3px}
+.timer-lbl{text-align:center;font-size:11px;color:var(--g5);margin-bottom:10px}
+/* LONG RECORDING INDICATOR */
+.rec-duration-warn{background:var(--ors);border:1px solid var(--orb);border-radius:var(--rs);padding:8px 12px;font-size:12px;color:var(--or);margin-bottom:10px;display:none;text-align:center;font-weight:600}
+.rec-duration-warn.vis{display:block}
+.waveform{height:44px;background:var(--wh);border:1px solid var(--g3);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;gap:2px;overflow:hidden;margin-bottom:10px;box-shadow:var(--sh)}
+.wbar{width:3px;background:var(--g3);border-radius:2px;transition:height .08s}.wbar.active{background:var(--ac)}
+.upload-zone{border:2px dashed var(--g3);border-radius:var(--r);padding:24px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px;background:var(--wh)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--ac);background:var(--acs)}
+.upload-icon{font-size:28px;margin-bottom:7px}
+.upload-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.upload-sub{font-size:11px;color:var(--g5)}
+.file-info{background:var(--acs);border:1px solid var(--acb);border-radius:var(--rs);padding:10px;display:none;align-items:center;gap:8px;margin-bottom:10px}
+.file-info.vis{display:flex}
+.file-name{font-size:12px;font-weight:600;flex:1;color:var(--ac)}
+.file-rm{color:var(--g5);font-size:16px;cursor:pointer;background:none;border:none}
+.prog{background:var(--wh);border:1px solid var(--g3);border-radius:var(--r);padding:14px;margin-bottom:10px;display:none;box-shadow:var(--sh)}
+.prog.vis{display:block}
+.pstep{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12px;color:var(--g5)}
+.pstep.done{color:var(--g7)}.pstep.active{color:var(--ac);font-weight:600}
+.pdot{width:20px;height:20px;border-radius:6px;background:var(--g2);border:1px solid var(--g3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.pdot.done{background:var(--gr);border-color:var(--gr);color:#fff}
+.pdot.active{background:var(--ac);border-color:var(--ac);color:#fff;animation:pb .7s infinite}
+@keyframes pb{0%,100%{opacity:1}50%{opacity:.3}}
+.results{display:none;margin-bottom:10px}.results.vis{display:block}
+.res-block{background:var(--wh);border:1px solid var(--g3);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.res-block-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--g2)}
+.res-block-icon{font-size:16px}
+.res-block-title{font-size:13px;font-weight:700}
+.res-block-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:var(--m)}
+.res-text{font-size:13px;line-height:1.75;color:var(--g7);white-space:pre-wrap}
+.kz-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kz-item{background:var(--g1);border:1px solid var(--g3);border-radius:var(--rs);padding:10px;text-align:center}
+.kz-val{font-size:16px;font-weight:800;color:var(--ac);font-family:var(--m);margin-bottom:2px}
+.kz-lbl{font-size:10px;color:var(--g5);font-weight:600}
+.task-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--g2)}
+.task-item:last-child{border-bottom:none}
+.task-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--g4);flex-shrink:0;margin-top:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.task-check.done{background:var(--gr);border-color:var(--gr);color:#fff;font-size:10px}
+.task-content{flex:1}
+.task-title{font-size:13px;font-weight:600;color:var(--g7);margin-bottom:3px;line-height:1.4}
+.task-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.task-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:var(--m)}
+.badge-frist{background:var(--res);color:var(--re)}
+.badge-stakeholder{background:var(--acs);color:var(--ac)}
+.badge-prio-h{background:#fef3c7;color:#92400e}
+.badge-prio-m{background:var(--acs);color:var(--ac)}
+.badge-prio-l{background:var(--grs);color:var(--gr)}
+.pain-item{padding:10px 0;border-bottom:1px solid var(--g2)}.pain-item:last-child{border-bottom:none}
+.pain-title{font-size:13px;font-weight:700;color:var(--re);margin-bottom:4px}
+.pain-text{font-size:12px;color:var(--g6);line-height:1.6}
+.erw-item{padding:10px 0;border-bottom:1px solid var(--g2)}.erw-item:last-child{border-bottom:none}
+.erw-title{font-size:13px;font-weight:700;color:var(--ac);margin-bottom:6px}
+.erw-row{display:flex;gap:6px;align-items:flex-start;margin-bottom:4px}
+.erw-key{font-size:10px;font-weight:700;color:var(--g5);min-width:90px;font-family:var(--m);padding-top:1px}
+.erw-val{font-size:12px;color:var(--g7);line-height:1.5;flex:1}
+.wa-box{background:var(--grs);border:1px solid var(--grb);border-radius:var(--rs);padding:12px;margin-bottom:8px}
+.wa-box p{font-size:13px;line-height:1.65;color:#166534;white-space:pre-wrap}
+.mail-subj{font-size:10px;font-weight:700;color:var(--ac);font-family:var(--m);margin-bottom:4px}
+/* ANGEBOT BLOCK */
+.angebot-block{background:var(--pus);border:1px solid var(--pub);border-radius:var(--rs);padding:12px;margin-bottom:8px}
+.angebot-block p{font-size:13px;line-height:1.65;color:#4c1d95;white-space:pre-wrap}
+/* GDRIVE STATUS */
+.drive-status{background:var(--grs);border:1px solid var(--grb);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:#166534;font-weight:500;margin-bottom:8px;display:none}
+.drive-status.vis{display:flex;align-items:center;gap:8px}
+.drive-status.err{background:var(--res);border-color:#fecaca;color:var(--re)}
+.chat-wrap{background:var(--wh);border:1px solid var(--g3);border-radius:var(--r);overflow:hidden}
+.chat-msgs{padding:12px;min-height:120px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.chat-msg{max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.6;white-space:pre-wrap}
+.chat-msg.user{background:var(--ac);color:white;align-self:flex-end;border-radius:12px 12px 2px 12px}
+.chat-msg.ai{background:var(--g1);border:1px solid var(--g3);align-self:flex-start;border-radius:2px 12px 12px 12px}
+.chat-msg.thinking{color:var(--g5);font-style:italic;background:var(--g1);border:1px solid var(--g3);align-self:flex-start;border-radius:2px 12px 12px 12px}
+.chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--g3);background:var(--g1)}
+.chat-input{flex:1;border:1px solid var(--g3);border-radius:20px;padding:9px 14px;font-size:13px;font-family:var(--f);color:var(--g7);background:var(--wh);outline:none}
+.chat-input:focus{border-color:var(--ac)}
+.chat-send{background:var(--ac);border:none;border-radius:20px;padding:9px 14px;font-size:12px;font-weight:700;color:white;cursor:pointer}
+.chat-suggs{display:flex;flex-direction:column;gap:6px;padding:0 12px 10px}
+.chat-sugg{background:var(--g1);border:1px solid var(--g3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--g7);cursor:pointer;text-align:left;font-family:var(--f)}
+.chat-sugg:hover{border-color:var(--ac);background:var(--acs)}
+.transcript-box{background:var(--g1);border:1px solid var(--g3);border-radius:var(--rs);padding:12px;max-height:240px;overflow-y:auto}
+.spk-line{margin-bottom:10px}.spk-name{font-size:9px;font-weight:700;letter-spacing:.8px;margin-bottom:3px;font-family:var(--m)}
+.spk-k{color:var(--ac)}.spk-c{color:var(--or)}.spk-o{color:var(--g5)}
+.spk-text{font-size:13px;line-height:1.6;color:var(--g7)}
+.notiz-area{width:100%;min-height:120px;border:1px solid var(--g3);border-radius:var(--rs);padding:10px 12px;font-size:14px;font-family:var(--f);color:var(--g7);background:var(--g1);outline:none;resize:vertical;line-height:1.6}
+.notiz-area:focus{border-color:var(--ac);background:var(--wh);box-shadow:0 0 0 3px rgba(29,78,216,.08)}
+.note-card{background:var(--wh);border:1px solid var(--g3);border-radius:var(--r);padding:13px;margin-bottom:9px;cursor:pointer;transition:all .15s;box-shadow:var(--sh)}
+.note-card:hover{border-color:var(--acb);box-shadow:var(--sh2)}
+.note-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px}
+.note-title{font-size:14px;font-weight:700;flex:1;line-height:1.3}
+.note-tag{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;font-family:var(--m)}
+.tag-g{background:var(--acs);color:var(--ac);border:1px solid var(--acb)}
+.tag-n{background:var(--grs);color:var(--gr);border:1px solid var(--grb)}
+.note-meta{font-size:11px;color:var(--g5);margin-bottom:6px}
+.note-prev{font-size:12px;color:var(--g5);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.note-acts{display:flex;gap:5px;margin-top:10px;padding-top:10px;border-top:1px solid var(--g2)}
+.note-btn{flex:1;padding:7px;border:1px solid var(--g3);border-radius:6px;background:var(--g1);font-size:10px;font-weight:600;color:var(--g7);cursor:pointer;text-align:center}
+.note-btn.re{color:var(--re);border-color:#fecaca;background:var(--res)}
+.search-wrap{position:relative;margin-bottom:10px}
+.search-wrap input{width:100%;border:1px solid var(--g3);border-radius:var(--r);padding:10px 14px 10px 36px;font-size:13px;font-family:var(--f);color:var(--g7);background:var(--wh);outline:none;box-shadow:var(--sh)}
+.search-wrap input:focus{border-color:var(--ac)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--g5)}
+.ftabs{display:flex;gap:6px;margin-bottom:12px}
+.ftab{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--g3);background:var(--wh);color:var(--g5)}
+.ftab.active{background:var(--ac);color:var(--wh);border-color:var(--ac)}
+.detail{position:fixed;inset:0;background:var(--g1);z-index:200;overflow-y:auto;display:none;max-width:430px;margin:0 auto}
+.detail.open{display:block}
+.det-hdr{background:var(--wh);border-bottom:1px solid var(--g3);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;box-shadow:var(--sh)}
+.back-btn{background:none;border:none;color:var(--ac);font-size:13px;font-weight:700;cursor:pointer}
+.det-ttl{font-size:13px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.det-body{padding:14px 14px 120px}
+.exp-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--wh);border-top:1px solid var(--g3);padding:10px 12px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:5px;z-index:201;padding-bottom:calc(10px + env(safe-area-inset-bottom));box-shadow:0 -2px 8px rgba(0,0,0,.05)}
+.exp-btn{padding:9px;border:none;border-radius:var(--rs);font-size:9px;font-weight:700;cursor:pointer;font-family:var(--f);text-align:center}
+.exp-dk{background:var(--g7);color:#fff}.exp-gr{background:var(--gr);color:#fff}
+.exp-ac{background:var(--ac);color:#fff}.exp-or{background:var(--or);color:#fff}.exp-pu{background:var(--pu);color:#fff}
+.set-card{background:var(--wh);border:1px solid var(--g3);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.set-card label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g5);margin-bottom:6px}
+.set-card input{width:100%;border:1px solid var(--g3);border-radius:var(--rs);padding:9px 12px;font-size:13px;font-family:var(--m);color:var(--g7);background:var(--g1);outline:none}
+.set-card input:focus{border-color:var(--ac)}
+.set-hint{font-size:11px;color:var(--g5);margin-top:6px;line-height:1.6}
+.install-steps{background:var(--g1);border-radius:var(--rs);padding:12px;font-size:13px;line-height:2;color:var(--g6)}
+.div{height:1px;background:var(--g3);margin:12px 0}
+.info-box{border-radius:var(--rs);padding:11px 13px;font-size:12px;line-height:1.6;font-weight:500;margin-bottom:10px}
+.info-ac{background:var(--acs);color:var(--ac);border:1px solid var(--acb)}
+.empty{text-align:center;padding:60px 20px;color:var(--g5)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:14px;font-weight:700;color:var(--g6);margin-bottom:5px}
+.empty-sub{font-size:12px}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--g7);color:#fff;padding:9px 18px;border-radius:20px;font-size:12px;font-weight:600;z-index:400;opacity:0;transition:opacity .3s;white-space:nowrap;pointer-events:none;box-shadow:var(--sh2)}
+.toast.show{opacity:1}
+.warn{background:var(--ors);border:1px solid var(--orb);border-radius:var(--r);padding:11px 14px;margin-bottom:10px;display:none}
+.warn p{font-size:11px;color:var(--or);font-weight:500}
+.warn span{text-decoration:underline;cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div>
+    <div class="logo">Pilsner Vertriebs GmbH</div>
+    <div class="logo-sub" id="logo-sub">Recorder v2.0</div>
+  </div>
+  <div class="hdr-right">
+    <div class="net-badge online" id="net-badge">ON</div>
+    <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+    <button class="gdrive-btn" onclick="connectDrive()" id="gdrive-btn">☁ Drive</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('rec')" id="tab-rec">● REC</div>
+  <div class="tab" onclick="switchTab('memo')" id="tab-memo">📝 NOTIZ</div>
+  <div class="tab" onclick="switchTab('archive')" id="tab-archive">ARCHIV</div>
+  <div class="tab" onclick="switchTab('settings')" id="tab-settings">⚙</div>
+</div>
+
+<!-- REC PAGE -->
+<div class="page active" id="page-rec">
+  <div class="warn" id="api-warn"><p id="w-api"></p></div>
+  <div class="drive-status" id="drive-status"></div>
+  <div class="card">
+    <label id="lbl-title">Kunde / Titel</label>
+    <input type="text" id="rec-title" placeholder="z.B. Familie Hägele – Beratung">
+  </div>
+  <div class="card">
+    <label id="lbl-type">Gesprächstyp</label>
+    <select id="rec-type" onchange="updTmpl()">
+      <option value="Erstgespräch">Erstgespräch / First meeting</option>
+      <option value="Beratung">Beratung / Consultation</option>
+      <option value="Verhandlung">Verhandlung / Negotiation</option>
+      <option value="Vor-Ort-Termin">Vor-Ort-Termin / On-site visit</option>
+      <option value="Nachfassgespräch">Nachfassgespräch / Follow-up</option>
+      <option value="Angebotsbesprechung">Angebotsbesprechung / Offer review</option>
+      <option value="Meeting">Meeting / Besprechung</option>
+      <option value="Interview">Interview</option>
+      <option value="Sonstiges">Sonstiges / Other</option>
+    </select>
+    <div id="tmpl-info" style="font-size:11px;color:var(--g5);margin-top:7px;line-height:1.6;"></div>
+  </div>
+  <div class="mode-sw">
+    <button class="mode-btn active" id="mode-mic" onclick="setMode('mic')">🎙 <span id="m-mic">Mikrofon</span></button>
+    <button class="mode-btn" id="mode-file" onclick="setMode('file')">📂 <span id="m-file">Datei</span></button>
+  </div>
+  <!-- MIC -->
+  <div id="mic-sec">
+    <div class="rec-duration-warn" id="dur-warn"></div>
+    <div class="rec-wrap">
+      <button class="rec-btn" id="recBtn" onclick="toggleRec(false)">
+        <div class="rec-dot"></div>
+        <svg id="rec-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+        <span class="rec-lbl" id="rec-lbl">REC</span>
+      </button>
+    </div>
+    <div class="timer" id="timer">0:00</div>
+    <div class="timer-lbl" id="timer-lbl">Drücken zum Starten</div>
+    <div class="waveform" id="waveform"></div>
+  </div>
+  <!-- FILE -->
+  <div id="file-sec" style="display:none;">
+    <input type="file" id="file-input" accept="audio/*,video/*,.m4a,.mp3,.wav" style="display:none">
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+      <div class="upload-icon">📂</div>
+      <div class="upload-title" id="uz-title">Datei hochladen</div>
+      <div class="upload-sub" id="uz-sub">M4A · MP3 · WAV · WEBM — bis 90 Min</div>
+    </div>
+    <div class="file-info" id="file-info">
+      <span style="font-size:18px;">🎵</span>
+      <span class="file-name" id="file-name"></span>
+      <button class="file-rm" onclick="rmFile()">✕</button>
+    </div>
+  </div>
+  <!-- PROGRESS -->
+  <div class="prog" id="prog">
+    <div class="pstep" id="ps1"><div class="pdot" id="pd1">1</div><span id="p1-lbl">Audio vorbereiten...</span></div>
+    <div class="pstep" id="ps2"><div class="pdot" id="pd2">2</div><span id="p2-lbl">Transkription...</span></div>
+    <div class="pstep" id="ps3"><div class="pdot" id="pd3">3</div><span id="p3-lbl">KI-Analyse...</span></div>
+    <div class="pstep" id="ps4"><div class="pdot" id="pd4">✓</div><span id="p4-lbl">Fertig & gespeichert</span></div>
+    <div class="pstep" id="ps5"><div class="pdot" id="pd5">☁</div><span id="p5-lbl">Google Drive Backup...</span></div>
+  </div>
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">📋</span><span class="res-block-title" id="rh-uberblick">Überblick</span></div><div class="res-text" id="res-uberblick"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">📖</span><span class="res-block-title" id="rh-hintergrund">Hintergrund</span></div><div class="res-text" id="res-hintergrund"></div></div>
+    <div class="res-block" id="kz-block"><div class="res-block-hdr"><span class="res-block-icon">📊</span><span class="res-block-title" id="rh-kz">Kennzahlen</span></div><div class="kz-grid" id="res-kz"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">⚡</span><span class="res-block-title" id="rh-schmerz">Schmerzpunkte</span></div><div id="res-schmerz"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">🎯</span><span class="res-block-title" id="rh-erw">Erwartungen</span></div><div id="res-erwartungen"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">✅</span><span class="res-block-title" id="rh-actions">Nächste Schritte</span></div><div class="res-text" id="res-actions"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">☑️</span><span class="res-block-title" id="rh-tasks">Aufgabenliste</span></div><div id="res-tasks"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">💡</span><span class="res-block-title" id="rh-tips">Tipps</span></div><div class="res-text" id="res-tips" style="background:var(--grs);border:1px solid var(--grb);border-radius:var(--rs);padding:12px;color:#166534;"></div></div>
+    <!-- ANGEBOTS BRIEF -->
+    <div class="res-block" id="angebot-block" style="display:none;">
+      <div class="res-block-hdr"><span class="res-block-icon">📄</span><span class="res-block-title" id="rh-angebot">Angebotsbrief</span><span class="res-block-badge" style="background:var(--pus);color:var(--pu);border:1px solid var(--pub);">NEU</span></div>
+      <div class="angebot-block"><p id="res-angebot"></p></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <button class="btn btn-pu" style="margin-bottom:0;" onclick="cpEl('res-angebot','Angebotsbrief')" id="btn-copy-angebot">📋 Kopieren</button>
+        <button class="btn btn-dk" style="margin-bottom:0;" onclick="dlDocxAngebot()" id="btn-word-angebot">📄 Word</button>
+      </div>
+    </div>
+    <button class="btn btn-pu" id="btn-gen-angebot" onclick="generateAngebot()" style="display:none;" id="btn-gen-angebot"></button>
+    <!-- NACHRICHTEN -->
+    <div class="res-block">
+      <div class="res-block-hdr"><span class="res-block-icon">📤</span><span class="res-block-title" id="rh-nachrichten">Nachrichten</span></div>
+      <div class="wa-box"><p id="res-wa"></p></div>
+      <button class="btn btn-gr" style="margin-bottom:8px;" onclick="cpEl('res-wa','WhatsApp')" id="btn-copy-wa">💬 WhatsApp kopieren</button>
+      <div style="background:var(--acs);border:1px solid var(--acb);border-radius:var(--rs);padding:12px;margin-bottom:8px;">
+        <div class="mail-subj" id="res-subject"></div>
+        <div class="res-text" id="res-email" style="color:#1e40af;margin-top:6px;"></div>
+      </div>
+      <button class="btn btn-bl" style="margin-bottom:0;" onclick="openMail()" id="btn-open-mail">✉️ In Mail öffnen</button>
+    </div>
+    <!-- ASK AI -->
+    <div class="res-block">
+      <div class="res-block-hdr"><span class="res-block-icon">🤖</span><span class="res-block-title" id="rh-ask">Ask AI</span><span class="res-block-badge" style="background:var(--pus);color:var(--pu);border:1px solid var(--pub);">CHAT</span></div>
+      <div class="chat-wrap">
+        <div class="chat-msgs" id="chat-msgs"></div>
+        <div class="chat-suggs" id="chat-suggs"></div>
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="chat-input" onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="chat-send" onclick="sendChat()">▶</button>
+        </div>
+      </div>
+    </div>
+    <!-- TRANSCRIPT -->
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">🎙</span><span class="res-block-title" id="rh-transcript">Transkript</span></div><div class="transcript-box" id="res-transcript"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <button class="btn btn-dk" style="margin-bottom:0;" onclick="dlDocx(lastResult)" id="btn-word-main">📄 Word</button>
+      <button class="btn btn-ac" style="margin-bottom:0;" onclick="exportPDF(lastResult)" id="btn-pdf-main">🖨 PDF</button>
+    </div>
+  </div>
+  <button class="btn btn-ac" id="processBtn" onclick="processGespräch()" disabled>▶ Analysieren</button>
+</div>
+
+<!-- MEMO PAGE -->
+<div class="page" id="page-memo">
+  <div class="warn" id="api-warn-memo"><p id="w-api2"></p></div>
+  <div class="card"><label id="lbl-memo-title">Notiz-Titel</label><input type="text" id="memo-title" placeholder="z.B. Ideen, To-Dos..."></div>
+  <div class="mode-sw">
+    <button class="mode-btn active" id="mm-mic" onclick="setMemoMode('mic')">🎙 <span id="mm-mic-lbl">Aufsprechen</span></button>
+    <button class="mode-btn" id="mm-text" onclick="setMemoMode('text')">✏️ <span id="mm-text-lbl">Tippen</span></button>
+    <button class="mode-btn" id="mm-file" onclick="setMemoMode('file')">📂 <span id="mm-file-lbl">Datei</span></button>
+  </div>
+  <div id="memo-mic-sec">
+    <div class="info-box info-ac" id="memo-hint">💡 Einfach drauflosreden – die KI strukturiert alles.</div>
+    <div class="rec-duration-warn" id="mdur-warn"></div>
+    <div class="rec-wrap">
+      <button class="rec-btn" id="mrecBtn" onclick="toggleRec(true)">
+        <div class="rec-dot"></div>
+        <svg id="mrec-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+        <span class="rec-lbl" id="mrec-lbl">REC</span>
+      </button>
+    </div>
+    <div class="timer" id="mtimer">0:00</div>
+    <div class="timer-lbl" id="mtimer-lbl">Drücken zum Starten</div>
+    <div class="waveform" id="mwaveform"></div>
+  </div>
+  <div id="memo-text-sec" style="display:none;"><div class="card"><label id="lbl-notiz-text">Deine Notiz</label><textarea class="notiz-area" id="memo-text" placeholder="Tippe hier..."></textarea></div></div>
+  <div id="memo-file-sec" style="display:none;">
+    <input type="file" id="mfile-input" accept="audio/*,video/*,.m4a,.mp3,.wav" style="display:none">
+    <div class="upload-zone" onclick="document.getElementById('mfile-input').click()"><div class="upload-icon">📂</div><div class="upload-title" id="muz-title">Audio-Notiz</div><div class="upload-sub">M4A · MP3 · WAV</div></div>
+    <div class="file-info" id="mfile-info"><span style="font-size:18px;">🎵</span><span class="file-name" id="mfile-name"></span><button class="file-rm" onclick="rmMemoFile()">✕</button></div>
+  </div>
+  <div class="prog" id="mprog">
+    <div class="pstep" id="mps1"><div class="pdot" id="mpd1">1</div><span id="mp1-lbl">Vorbereiten...</span></div>
+    <div class="pstep" id="mps2"><div class="pdot" id="mpd2">2</div><span id="mp2-lbl">Transkription...</span></div>
+    <div class="pstep" id="mps3"><div class="pdot" id="mpd3">3</div><span id="mp3-lbl">Strukturierung...</span></div>
+    <div class="pstep" id="mps4"><div class="pdot" id="mpd4">✓</div><span id="mp4-lbl">Gespeichert</span></div>
+  </div>
+  <div class="results" id="memo-results">
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">📝</span><span class="res-block-title" id="rh-summary">Zusammenfassung</span></div><div class="res-text" id="mres-summary"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">☑️</span><span class="res-block-title" id="rh-todos">To-Do Liste</span></div><div id="mres-tasks"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">💡</span><span class="res-block-title" id="rh-ideas">Ideen</span></div><div class="res-text" id="mres-ideas"></div></div>
+    <div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">📄</span><span class="res-block-title" id="rh-fulltext">Volltext</span></div><div class="transcript-box"><div class="res-text" id="mres-raw"></div></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button class="btn btn-dk" style="margin-bottom:0;" onclick="dlDocx(lastMemo)" id="btn-word-memo">📄 Word</button>
+      <button class="btn btn-ac" style="margin-bottom:0;" onclick="exportPDF(lastMemo)" id="btn-pdf-memo">🖨 PDF</button>
+    </div>
+  </div>
+  <button class="btn btn-ac" id="mprocessBtn" onclick="processMemo()" disabled>▶ Strukturieren</button>
+</div>
+
+<!-- ARCHIVE -->
+<div class="page" id="page-archive">
+  <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="Suchen..." oninput="renderArchive()"></div>
+  <div class="ftabs">
+    <div class="ftab active" onclick="setFilter('alle')" id="filter-all">Alle</div>
+    <div class="ftab" onclick="setFilter('gespräch')" id="filter-g">Gespräche</div>
+    <div class="ftab" onclick="setFilter('notiz')" id="filter-n">Notizen</div>
+  </div>
+  <div id="archive-list"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="set-card">
+    <label>ANTHROPIC API KEY</label>
+    <input type="password" id="api-key-input" placeholder="sk-ant-...">
+    <p class="set-hint">console.anthropic.com → API Keys → Create new secret key<br>~10€ reicht für hunderte Gespräche</p>
+  </div>
+  <button class="btn btn-ac" onclick="saveKey()" id="btn-save-key">API Key speichern</button>
+  <div class="div"></div>
+  <!-- GOOGLE DRIVE -->
+  <div class="set-card">
+    <label>☁ GOOGLE DRIVE BACKUP</label>
+    <p class="set-hint" style="margin-bottom:10px;">Alle Notizen werden automatisch nach der Analyse in deinen Google Drive gesichert. Einmalig anmelden reicht.</p>
+    <div id="gdrive-info" style="font-size:12px;color:var(--g5);margin-bottom:10px;"></div>
+    <button class="btn btn-gr" onclick="connectDrive()" id="btn-connect-drive" style="margin-bottom:8px;">☁ Mit Google Drive verbinden</button>
+    <button class="btn btn-bl" onclick="manualBackup()" id="btn-manual-backup" style="display:none;margin-bottom:8px;">☁ Jetzt alle Notizen sichern</button>
+    <button class="btn btn-re" onclick="disconnectDrive()" id="btn-disconnect-drive" style="display:none;margin-bottom:0;">Drive trennen</button>
+    <div id="gdrive-client-id-wrap">
+      <p class="set-hint" style="margin-top:8px;color:var(--re);">⚠ Für Google Drive benötigst du eine Google OAuth Client-ID. Diese erhältst du kostenlos unter <strong>console.cloud.google.com</strong> → Credentials → OAuth 2.0.</p>
+      <input type="text" id="gdrive-client-id" placeholder="Google OAuth Client-ID (endet auf .apps.googleusercontent.com)" style="margin-top:6px;border:1px solid var(--g3);border-radius:var(--rs);padding:9px 12px;font-size:12px;font-family:var(--m);color:var(--g7);background:var(--g1);outline:none;width:100%;">
+      <button class="btn btn-bl" onclick="saveClientId()" style="margin-top:6px;margin-bottom:0;padding:10px;">Client-ID speichern</button>
+    </div>
+  </div>
+  <div class="div"></div>
+  <div class="set-card">
+    <label style="margin-bottom:8px;">ALS APP INSTALLIEREN (iPhone)</label>
+    <div class="install-steps">1. Seite im <strong>Safari</strong> öffnen<br>2. Teilen-Symbol (□↑) antippen<br>3. „Zum Home-Bildschirm" wählen<br>4. ✓ App-Icon auf dem Homescreen</div>
+  </div>
+  <div class="div"></div>
+  <div class="set-card">
+    <label>SPRACHE / LANGUAGE</label>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ac" onclick="setLang('de')" style="margin-bottom:0;flex:1;padding:10px;" id="btn-lang-de">🇩🇪 Deutsch</button>
+      <button class="btn btn-bl" onclick="setLang('en')" style="margin-bottom:0;flex:1;padding:10px;" id="btn-lang-en">🇬🇧 English</button>
+    </div>
+  </div>
+  <div class="div"></div>
+  <button class="btn btn-re" onclick="clearAll()">Alle Daten löschen</button>
+</div>
+
+<!-- DETAIL -->
+<div class="detail" id="detail">
+  <div class="det-hdr">
+    <button class="back-btn" onclick="closeDetail()">← Zurück</button>
+    <div class="det-ttl" id="det-title"></div>
+  </div>
+  <div class="det-body" id="det-body"></div>
+  <div class="exp-bar">
+    <button class="exp-btn exp-dk" onclick="cpDet()">Kopieren</button>
+    <button class="exp-btn exp-gr" onclick="cpDetWA()">WhatsApp</button>
+    <button class="exp-btn exp-pu" onclick="openDetMail()">E-Mail</button>
+    <button class="exp-btn exp-ac" onclick="dlDocxDet()">Word</button>
+    <button class="exp-btn exp-or" onclick="exportPDFdet()">PDF</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+// ── I18N ──────────────────────────────────────────────────────
+const I18N={
+de:{
+  logoSub:'Recorder v2.0 · Drive · Angebotsbrief',
+  tabRec:'● REC',tabMemo:'📝 NOTIZ',tabArchive:'ARCHIV',tabSet:'⚙',
+  lblTitle:'Kunde / Titel',lblTitlePh:'z.B. Familie Hägele – Beratung',
+  lblType:'Gesprächstyp',mMic:'Mikrofon',mFile:'Datei',
+  uzTitle:'Datei hochladen',uzSub:'M4A · MP3 · WAV — bis 90 Min',
+  timerStart:'Drücken zum Starten',timerRec:'● Aufnahme läuft...',timerDone:'Beendet — jetzt auswerten ▶',
+  durWarn30:'30 Min — läuft gut, weiter aufnehmen',durWarn60:'60 Min — Lange Aufnahme, Transkription dauert etwas länger',durWarn90:'90 Min erreicht — empfehle jetzt zu stoppen',
+  p1:'Audio vorbereiten...',p2:'Transkription (Chunked für lange Aufnahmen)...',p3:'KI-Analyse (Streaming)...',p4:'Fertig & lokal gespeichert',p5:'Google Drive Backup...',
+  rhU:'Überblick',rhH:'Hintergrund',rhKZ:'Kennzahlen',rhS:'Schmerzpunkte',
+  rhE:'Erwartungen',rhA:'Nächste Schritte',rhT:'Aufgabenliste',rhTi:'Tipps',
+  rhN:'Nachrichten',rhAsk:'Ask AI – Fragen zum Gespräch',rhTr:'Transkript mit Sprechern',
+  rhAngebot:'Angebotsbrief',
+  btnWA:'💬 WhatsApp kopieren',btnMail:'✉️ In Mail öffnen',
+  btnAngebot:'✨ Angebotsbrief generieren',
+  btnProcess:'▶ Jetzt analysieren',
+  wApi:'⚠ Kein API Key — ',wApiLink:'Einstellungen öffnen',
+  lblMemoTitle:'Notiz-Titel (optional)',memoTitlePh:'z.B. Ideen, To-Dos...',
+  mmMic:'Aufsprechen',mmText:'Tippen',mmFile:'Datei',
+  memoHint:'💡 Einfach drauflosreden – die KI strukturiert alles automatisch.',
+  lblNotizText:'Deine Notiz',notizPh:'Tippe hier deine Gedanken...',
+  muzTitle:'Audio-Notiz hochladen',
+  mp1:'Vorbereiten...',mp2:'Transkription...',mp3:'Strukturierung (Streaming)...',mp4:'Gespeichert',
+  rhSum:'Zusammenfassung',rhTodos:'To-Do Liste',rhIdeas:'Ideen & Hinweise',rhFull:'Volltext',
+  srchPh:'Suchen...',fAll:'Alle',fG:'Gespräche',fN:'Notizen',
+  noKZ:'Keine Kennzahlen erkannt',noS:'Keine Schmerzpunkte erkannt',noE:'Keine Erwartungen erkannt',noT:'Keine Aufgaben erkannt',
+  ok:'✓ Gespeichert!',memoOk:'✓ Notiz gespeichert!',wordOk:'Word heruntergeladen ✓',cpOk:'Kopiert ✓',waOk:'WhatsApp kopiert ✓',
+  delQ:'Löschen?',clearQ:'Wirklich alles löschen?',deleted:'Gelöscht',
+  errMic:'Mikrofon-Zugriff verweigert',errApi:'API Key fehlt',errNoRec:'Keine Aufnahme',errText:'Bitte Text eingeben',
+  driveConn:'☁ Google Drive verbunden',driveDisconn:'Drive getrennt',driveOk:'☁ Backup gespeichert: ',driveErr:'Drive-Fehler: ',
+  angebotLoading:'Angebotsbrief wird generiert...',angebotOk:'✓ Angebotsbrief bereit',
+  tagG:'GESPRÄCH',tagN:'NOTIZ',langBtn:'EN',
+  chatWelcome:'Stell mir Fragen zu diesem Gespräch — ich kenne alle Details.',
+  chatSuggs:['Was war der Haupteinwand?','Schreib einen Angebots-Einleitungstext','Welche Einwände könnten noch kommen?','Fasse in 3 Sätzen zusammen'],
+  chatPh:'Frag nach diesem Gespräch...',noConv:'Zuerst ein Gespräch aufnehmen',
+  tmpl:{
+    'Erstgespräch':'🤝 Extrahiert: Situation, Kaufmotiv, Schmerzpunkte, Erwartungen',
+    'Beratung':'💬 Extrahiert: Bedarf, Kennzahlen, Fragen, Entscheidungsstand',
+    'Verhandlung':'🤝 Extrahiert: Positionen, Zugeständnisse, Einwände, Ergebnis',
+    'Vor-Ort-Termin':'🏠 Extrahiert: Situation vor Ort, Besonderheiten, Angebotsbasis',
+    'Nachfassgespräch':'🔄 Extrahiert: Status, neue Einwände, Kaufsignale, Strategie',
+    'Angebotsbesprechung':'📋 Extrahiert: Reaktion, Einwände, Kennzahlen, Abschlusswahrscheinlichkeit',
+    'Meeting':'📅 Extrahiert: Beschlüsse, Aufgaben, Stakeholder, nächste Schritte',
+    'Interview':'🎤 Extrahiert: Kernaussagen, Themen, Erkenntnisse',
+    'Sonstiges':'📝 Extrahiert: Überblick, Kernpunkte, Aufgaben'
+  }
+},
+en:{
+  logoSub:'Recorder v2.0 · Drive · Offer Letter',
+  tabRec:'● REC',tabMemo:'📝 NOTE',tabArchive:'ARCHIVE',tabSet:'⚙',
+  lblTitle:'Client / Title',lblTitlePh:'e.g. Johnson family – Consultation',
+  lblType:'Meeting type',mMic:'Microphone',mFile:'File',
+  uzTitle:'Upload file',uzSub:'M4A · MP3 · WAV — up to 90 min',
+  timerStart:'Tap to start',timerRec:'● Recording...',timerDone:'Done — analyse now ▶',
+  durWarn30:'30 min — going well, keep recording',durWarn60:'60 min — long recording, transcription will take a moment',durWarn90:'90 min reached — recommend stopping now',
+  p1:'Preparing audio...',p2:'Transcription (chunked for long recordings)...',p3:'AI analysis (streaming)...',p4:'Done & saved locally',p5:'Google Drive backup...',
+  rhU:'Overview',rhH:'Background',rhKZ:'Key figures',rhS:'Pain points',
+  rhE:'Expectations',rhA:'Next steps',rhT:'Task list',rhTi:'Tips',
+  rhN:'Messages',rhAsk:'Ask AI – questions about this meeting',rhTr:'Transcript with speakers',
+  rhAngebot:'Offer Letter',
+  btnWA:'💬 Copy WhatsApp',btnMail:'✉️ Open in Mail',
+  btnAngebot:'✨ Generate Offer Letter',
+  btnProcess:'▶ Analyse now',
+  wApi:'⚠ No API Key — ',wApiLink:'Open settings',
+  lblMemoTitle:'Note title (optional)',memoTitlePh:'e.g. Ideas, To-Dos...',
+  mmMic:'Record',mmText:'Type',mmFile:'File',
+  memoHint:'💡 Just speak freely – the AI will structure everything automatically.',
+  lblNotizText:'Your note',notizPh:'Type your thoughts here...',
+  muzTitle:'Upload audio note',
+  mp1:'Preparing...',mp2:'Transcription...',mp3:'Structuring (streaming)...',mp4:'Saved',
+  rhSum:'Summary',rhTodos:'To-Do list',rhIdeas:'Ideas & insights',rhFull:'Full text',
+  srchPh:'Search...',fAll:'All',fG:'Meetings',fN:'Notes',
+  noKZ:'No key figures found',noS:'No pain points found',noE:'No expectations found',noT:'No tasks found',
+  ok:'✓ Saved!',memoOk:'✓ Note saved!',wordOk:'Word downloaded ✓',cpOk:'Copied ✓',waOk:'WhatsApp copied ✓',
+  delQ:'Delete?',clearQ:'Really delete everything?',deleted:'Deleted',
+  errMic:'Microphone access denied',errApi:'API Key missing',errNoRec:'No recording',errText:'Please enter text',
+  driveConn:'☁ Google Drive connected',driveDisconn:'Drive disconnected',driveOk:'☁ Backup saved: ',driveErr:'Drive error: ',
+  angebotLoading:'Generating offer letter...',angebotOk:'✓ Offer letter ready',
+  tagG:'MEETING',tagN:'NOTE',langBtn:'DE',
+  chatWelcome:'Ask me anything about this meeting — I know all the details.',
+  chatSuggs:['What was the main objection?','Write an offer introduction','What objections might still come?','Summarise in 3 sentences'],
+  chatPh:'Ask about this meeting...',noConv:'Record a conversation first',
+  tmpl:{
+    'Erstgespräch':'🤝 Extracts: situation, motive, pain points, expectations',
+    'Beratung':'💬 Extracts: needs, key figures, questions, decision status',
+    'Verhandlung':'🤝 Extracts: positions, concessions, objections, outcome',
+    'Vor-Ort-Termin':'🏠 Extracts: on-site situation, specifics, offer basis',
+    'Nachfassgespräch':'🔄 Extracts: status, new objections, buying signals, strategy',
+    'Angebotsbesprechung':'📋 Extracts: reaction, objections, key figures, closing probability',
+    'Meeting':'📅 Extracts: decisions, tasks, stakeholders, next steps',
+    'Interview':'🎤 Extracts: key statements, topics, insights',
+    'Sonstiges':'📝 Extracts: overview, key points, tasks'
+  }
+}
+};
+
+// ── STATE ──
+let lang='de', T=I18N.de;
+let recStore={}, upFile=null, mUpFile=null, curMode='mic', mCurMode='mic';
+let curNote=null, lastResult=null, lastMemo=null, curFilter='alle';
+let chatContext='', chatReady=false;
+let driveToken=null, driveClientId=null;
+let lastAngebotNote=null;
+
+// ── INIT ──
+window.onload=()=>{
+  ['waveform','mwaveform'].forEach(id=>{
+    const wf=document.getElementById(id);
+    for(let i=0;i<38;i++){const b=document.createElement('div');b.className='wbar';b.style.height='3px';wf.appendChild(b);}
+  });
+  document.getElementById('file-input').onchange=e=>{if(e.target.files[0])handleFile(e.target.files[0],false);};
+  document.getElementById('mfile-input').onchange=e=>{if(e.target.files[0])handleFile(e.target.files[0],true);};
+  const k=localStorage.getItem('pvg_api'); if(k) document.getElementById('api-key-input').value=k;
+  driveClientId=localStorage.getItem('pvg_drive_client_id');
+  if(driveClientId) document.getElementById('gdrive-client-id').value=driveClientId;
+  driveToken=sessionStorage.getItem('pvg_drive_token');
+  window.addEventListener('online',()=>updNet(true));
+  window.addEventListener('offline',()=>updNet(false));
+  updNet(navigator.onLine);
+  checkApi(); renderArchive(); updTmpl(); applyLang(); updDriveUI();
+};
+
+// ── LANG ──
+function toggleLang(){setLang(lang==='de'?'en':'de');}
+function setLang(l){lang=l;T=I18N[l];applyLang();renderArchive();}
+function applyLang(){
+  document.getElementById('logo-sub').textContent=T.logoSub;
+  document.getElementById('tab-rec').textContent=T.tabRec;
+  document.getElementById('tab-memo').textContent=T.tabMemo;
+  document.getElementById('tab-archive').textContent=T.tabArchive;
+  document.getElementById('tab-settings').textContent=T.tabSet;
+  document.getElementById('lang-btn').textContent=T.langBtn;
+  document.getElementById('lbl-title').textContent=T.lblTitle;
+  document.getElementById('rec-title').placeholder=T.lblTitlePh;
+  document.getElementById('lbl-type').textContent=T.lblType;
+  document.getElementById('m-mic').textContent=T.mMic;
+  document.getElementById('m-file').textContent=T.mFile;
+  document.getElementById('uz-title').textContent=T.uzTitle;
+  document.getElementById('uz-sub').textContent=T.uzSub;
+  document.getElementById('timer-lbl').textContent=T.timerStart;
+  document.getElementById('p1-lbl').textContent=T.p1;
+  document.getElementById('p2-lbl').textContent=T.p2;
+  document.getElementById('p3-lbl').textContent=T.p3;
+  document.getElementById('p4-lbl').textContent=T.p4;
+  document.getElementById('p5-lbl').textContent=T.p5;
+  document.getElementById('rh-uberblick').textContent=T.rhU;
+  document.getElementById('rh-hintergrund').textContent=T.rhH;
+  document.getElementById('rh-kz').textContent=T.rhKZ;
+  document.getElementById('rh-schmerz').textContent=T.rhS;
+  document.getElementById('rh-erw').textContent=T.rhE;
+  document.getElementById('rh-actions').textContent=T.rhA;
+  document.getElementById('rh-tasks').textContent=T.rhT;
+  document.getElementById('rh-tips').textContent=T.rhTi;
+  document.getElementById('rh-nachrichten').textContent=T.rhN;
+  document.getElementById('rh-ask').textContent=T.rhAsk;
+  document.getElementById('rh-transcript').textContent=T.rhTr;
+  document.getElementById('rh-angebot').textContent=T.rhAngebot;
+  document.getElementById('btn-copy-wa').textContent=T.btnWA;
+  document.getElementById('btn-open-mail').textContent=T.btnOpenMail||T.btnMail||'✉️ Mail';
+  document.getElementById('btn-gen-angebot').textContent=T.btnAngebot;
+  document.getElementById('processBtn').textContent=T.btnProcess;
+  const wa=document.getElementById('w-api');
+  if(wa)wa.innerHTML=T.wApi+'<span onclick="switchTab(\'settings\')">'+T.wApiLink+'</span>';
+  const wa2=document.getElementById('w-api2');
+  if(wa2)wa2.innerHTML=T.wApi+'<span onclick="switchTab(\'settings\')">'+T.wApiLink+'</span>';
+  document.getElementById('lbl-memo-title').textContent=T.lblMemoTitle;
+  document.getElementById('memo-title').placeholder=T.memoTitlePh;
+  document.getElementById('mm-mic-lbl').textContent=T.mmMic;
+  document.getElementById('mm-text-lbl').textContent=T.mmText;
+  document.getElementById('mm-file-lbl').textContent=T.mmFile;
+  document.getElementById('memo-hint').textContent=T.memoHint;
+  document.getElementById('lbl-notiz-text').textContent=T.lblNotizText;
+  document.getElementById('memo-text').placeholder=T.notizPh;
+  document.getElementById('muz-title').textContent=T.muzTitle;
+  document.getElementById('mp1-lbl').textContent=T.mp1;
+  document.getElementById('mp2-lbl').textContent=T.mp2;
+  document.getElementById('mp3-lbl').textContent=T.mp3;
+  document.getElementById('mp4-lbl').textContent=T.mp4;
+  document.getElementById('rh-summary').textContent=T.rhSum;
+  document.getElementById('rh-todos').textContent=T.rhTodos;
+  document.getElementById('rh-ideas').textContent=T.rhIdeas;
+  document.getElementById('rh-fulltext').textContent=T.rhFull;
+  document.getElementById('search-input').placeholder=T.srchPh;
+  document.getElementById('filter-all').textContent=T.fAll;
+  document.getElementById('filter-g').textContent=T.fG;
+  document.getElementById('filter-n').textContent=T.fN;
+  document.getElementById('chat-input').placeholder=T.chatPh;
+  updTmpl();
+  if(chatReady) resetChat();
+}
+
+// ── NET ──
+function updNet(on){
+  const b=document.getElementById('net-badge');
+  b.textContent=on?'ON':'OFF';
+  b.className='net-badge '+(on?'online':'offline');
+}
+function updTmpl(){
+  const t=T.tmpl[document.getElementById('rec-type').value];
+  document.getElementById('tmpl-info').textContent=t||'';
+}
+
+// ── TABS ──
+function switchTab(t){
+  ['rec','memo','archive','settings'].forEach((id,i)=>{
+    document.querySelectorAll('.tab')[i].classList.toggle('active',id===t);
+    document.getElementById('page-'+id).classList.toggle('active',id===t);
+  });
+  if(t==='archive') renderArchive();
+}
+
+// ── RECORDER (supports long recordings up to 90 min) ──
+async function toggleRec(isMemo){
+  const key=isMemo?'m':'g';
+  if(!recStore[key]?.on) await startRec(isMemo);
+  else stopRec(isMemo);
+}
+
+async function startRec(isMemo){
+  const key=isMemo?'m':'g';
+  const IDS=isMemo
+    ?{btn:'mrecBtn',icon:'mrec-icon',lbl:'mrec-lbl',tim:'mtimer',tlbl:'mtimer-lbl',wf:'mwaveform',proc:'mprocessBtn',warn:'mdur-warn'}
+    :{btn:'recBtn',icon:'rec-icon',lbl:'rec-lbl',tim:'timer',tlbl:'timer-lbl',wf:'waveform',proc:'processBtn',warn:'dur-warn'};
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const actx=new(window.AudioContext||window.webkitAudioContext)();
+    const src=actx.createMediaStreamSource(stream);
+    const anlz=actx.createAnalyser(); anlz.fftSize=64; src.connect(anlz);
+    // Use highest quality supported mime type
+    const mime=getBM();
+    const mr=new MediaRecorder(stream,{mimeType:mime,audioBitsPerSecond:128000});
+    const chunks=[];
+    mr.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+    mr.onstop=()=>{
+      recStore[key].blob=new Blob(chunks,{type:mime});
+      recStore[key].secs=recStore[key].el||0;
+      document.getElementById(IDS.proc).disabled=false;
+    };
+    mr.start(1000); // 1s chunks for memory efficiency
+    let el=0;
+    const tInt=setInterval(()=>{
+      el++; recStore[key].el=el;
+      const m=Math.floor(el/60),s=el%60;
+      document.getElementById(IDS.tim).textContent=`${m}:${s.toString().padStart(2,'0')}`;
+      // Duration warnings for long recordings
+      const warnEl=document.getElementById(IDS.warn);
+      if(el===1800){warnEl.textContent=T.durWarn30;warnEl.classList.add('vis');}
+      else if(el===3600){warnEl.textContent=T.durWarn60;warnEl.classList.add('vis');}
+      else if(el===5400){warnEl.textContent=T.durWarn90;warnEl.classList.add('vis');}
+    },1000);
+    const wInt=animWave(anlz,IDS.wf);
+    recStore[key]={on:true,mr,chunks,actx,anlz,tInt,wInt,el:0,blob:null,secs:0};
+    document.getElementById(IDS.btn).classList.add('recording');
+    document.getElementById(IDS.icon).innerHTML='<rect x="6" y="6" width="12" height="12" rx="2"/>';
+    document.getElementById(IDS.lbl).textContent='STOP';
+    document.getElementById(IDS.tlbl).textContent=T.timerRec;
+  }catch{showToast(T.errMic);}
+}
+
+function stopRec(isMemo){
+  const key=isMemo?'m':'g';
+  const s=recStore[key]; if(!s) return;
+  s.mr.stop(); s.mr.stream.getTracks().forEach(t=>t.stop());
+  clearInterval(s.tInt); clearInterval(s.wInt); s.on=false;
+  const IDS=isMemo
+    ?{btn:'mrecBtn',icon:'mrec-icon',lbl:'mrec-lbl',tlbl:'mtimer-lbl',wf:'mwaveform',warn:'mdur-warn'}
+    :{btn:'recBtn',icon:'rec-icon',lbl:'rec-lbl',tlbl:'timer-lbl',wf:'waveform',warn:'dur-warn'};
+  document.getElementById(IDS.btn).classList.remove('recording');
+  document.getElementById(IDS.icon).innerHTML='<circle cx="12" cy="12" r="8"/>';
+  document.getElementById(IDS.lbl).textContent='REC';
+  document.getElementById(IDS.tlbl).textContent=T.timerDone;
+  document.getElementById(IDS.warn).classList.remove('vis');
+  document.querySelectorAll('#'+IDS.wf+' .wbar').forEach(b=>{b.style.height='3px';b.classList.remove('active');});
+}
+
+function getBM(){
+  for(const t of['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'])
+    if(MediaRecorder.isTypeSupported(t)) return t;
+  return 'audio/webm';
+}
+function animWave(anlz,wfId){
+  const bars=document.querySelectorAll('#'+wfId+' .wbar');
+  const data=new Uint8Array(anlz?anlz.frequencyBinCount:32);
+  return setInterval(()=>{
+    if(anlz) anlz.getByteFrequencyData(data);
+    bars.forEach((b,i)=>{const v=anlz?(data[i%data.length]||0):Math.random()*22;const h=Math.max(3,Math.min(38,v*.38));b.style.height=h+'px';b.classList.toggle('active',h>6);});
+  },80);
+}
+
+function setMode(m){
+  curMode=m;
+  ['mic','file'].forEach(x=>{document.getElementById('mode-'+x).classList.toggle('active',x===m);document.getElementById(x+'-sec').style.display=x===m?'block':'none';});
+  document.getElementById('processBtn').disabled=m==='mic'?!recStore['g']?.blob:!upFile;
+}
+function setMemoMode(m){
+  mCurMode=m;
+  ['mic','text','file'].forEach(x=>{document.getElementById('mm-'+x).classList.toggle('active',x===m);document.getElementById('memo-'+x+'-sec').style.display=x===m?'block':'none';});
+  if(m==='text') document.getElementById('mprocessBtn').disabled=false;
+  else document.getElementById('mprocessBtn').disabled=m==='mic'?!recStore['m']?.blob:!mUpFile;
+}
+function handleFile(f,isMemo){
+  if(!isMemo){upFile=f;document.getElementById('file-name').textContent=f.name+' ('+Math.round(f.size/1024/1024,1)+' MB)';document.getElementById('file-info').classList.add('vis');document.getElementById('upload-zone').style.display='none';document.getElementById('processBtn').disabled=false;}
+  else{mUpFile=f;document.getElementById('mfile-name').textContent=f.name;document.getElementById('mfile-info').classList.add('vis');document.querySelectorAll('#memo-file-sec .upload-zone').forEach(z=>z.style.display='none');document.getElementById('mprocessBtn').disabled=false;}
+}
+function rmFile(){upFile=null;document.getElementById('file-input').value='';document.getElementById('file-info').classList.remove('vis');document.getElementById('upload-zone').style.display='block';document.getElementById('processBtn').disabled=true;}
+function rmMemoFile(){mUpFile=null;document.getElementById('mfile-input').value='';document.getElementById('mfile-info').classList.remove('vis');document.querySelectorAll('#memo-file-sec .upload-zone').forEach(z=>z.style.display='block');document.getElementById('mprocessBtn').disabled=true;}
+
+// ── PROCESS GESPRÄCH ──
+async function processGespräch(){
+  const api=localStorage.getItem('pvg_api'); if(!api){showToast(T.errApi);switchTab('settings');return;}
+  const blob=curMode==='mic'?recStore['g']?.blob:upFile; if(!blob){showToast(T.errNoRec);return;}
+  document.getElementById('processBtn').disabled=true;
+  document.getElementById('results').classList.remove('vis');
+  document.getElementById('angebot-block').style.display='none';
+  document.getElementById('btn-gen-angebot').style.display='none';
+  const pg=document.getElementById('prog'); pg.classList.add('vis');
+  try{
+    setS('p',1,'active');
+    const b64=await toB64(blob);
+    setS('p',1,'done'); setS('p',2,'active');
+    // CHUNKED TRANSCRIPTION for long recordings
+    const raw=await transcribeChunked(b64,blob.type,blob.size,api);
+    const spkLines=await diarize(raw,api);
+    setS('p',2,'done'); setS('p',3,'active');
+    document.getElementById('results').classList.add('vis');
+    const type=document.getElementById('rec-type').value;
+    const title=document.getElementById('rec-title').value||type;
+    const parsed=await streamGespräch(raw,type,title,api);
+    parsed.raw=raw; parsed.spkLines=spkLines;
+    setS('p',3,'done'); setS('p',4,'done');
+    renderResults(parsed);
+    renderSpk('res-transcript',spkLines);
+    chatContext=raw; chatReady=true; resetChat();
+    // Show angebot button
+    document.getElementById('btn-gen-angebot').style.display='block';
+    const note={id:Date.now(),kind:'gespräch',title,type,date:new Date().toISOString(),duration:recStore['g']?.secs||0,...parsed};
+    const ns=getNotes(); ns.unshift(note); saveNotes(ns); lastResult=note; lastAngebotNote=note;
+    showToast(T.ok);
+    setTimeout(()=>{pg.classList.remove('vis');resetSteps('p');},400);
+    // Google Drive backup
+    if(driveToken){
+      setS('p',5,'active');
+      try{
+        await driveUploadNote(note);
+        setS('p',5,'done');
+        showDriveStatus(T.driveOk+title,'ok');
+      }catch(e){
+        setS('p',5,'done');
+        showDriveStatus(T.driveErr+e.message,'err');
+      }
+    }
+  }catch(e){
+    showToast('Fehler: '+e.message.slice(0,35));
+    document.getElementById('prog').classList.remove('vis');
+    resetSteps('p');
+    document.getElementById('processBtn').disabled=false;
+  }
+}
+
+// ── CHUNKED TRANSCRIPTION (handles long recordings) ──
+async function transcribeChunked(b64,mimeType,fileSize,api){
+  // For files under ~20MB, send directly. Above that, split.
+  const CHUNK_LIMIT=18*1024*1024; // ~18MB base64 threshold
+  if(fileSize<CHUNK_LIMIT*0.75){
+    return await transcribeDirect(b64,mimeType,api);
+  }
+  // Split into ~10 min chunks by splitting base64 proportionally
+  showToast('Lange Aufnahme — wird in Teile aufgeteilt...');
+  const raw=b64.split(',')[1];
+  const chunkSize=Math.ceil(raw.length/Math.ceil(fileSize/(CHUNK_LIMIT*0.75)));
+  const numChunks=Math.ceil(raw.length/chunkSize);
+  const transcripts=[];
+  for(let i=0;i<numChunks;i++){
+    const chunkB64=raw.slice(i*chunkSize,(i+1)*chunkSize);
+    const fullB64='data:'+mimeType.split(';')[0]+';base64,'+chunkB64;
+    document.getElementById('p2-lbl').textContent=T.p2.replace('...','')+'... Teil '+(i+1)+'/'+numChunks;
+    try{
+      const t=await transcribeDirect(fullB64,mimeType,api);
+      transcripts.push(t);
+    }catch(e){
+      transcripts.push('[Transkription Teil '+(i+1)+' fehlgeschlagen]');
+    }
+  }
+  return transcripts.join('\n\n[...]\n\n');
+}
+
+async function transcribeDirect(b64,mimeType,api){
+  const mt=mimeType.split(';')[0]||'audio/webm';
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':api,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:[
+      {type:'text',text:'Transcribe this audio recording exactly. Return ONLY the transcript, no comments. Keep all names, numbers and technical terms.'},
+      {type:'document',source:{type:'base64',media_type:mt,data:b64.split(',')[1]}}
+    ]}]})
+  });
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Transcription failed');}
+  return (await r.json()).content[0].text;
+}
+
+async function diarize(transcript,api){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':api,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:`Identify speakers in this transcript. Return JSON array only (no markdown):\n[{"speaker":"Speaker A","text":"..."},...]\n\nTranscript:\n${transcript.slice(0,8000)}`}]})
+  });
+  if(!r.ok) return [{speaker:'Recording',text:transcript}];
+  try{const t=(await r.json()).content[0].text.trim().replace(/```json|```/g,'').trim();return JSON.parse(t);}
+  catch{return [{speaker:'Recording',text:transcript}];}
+}
+
+// ── STREAM GESPRÄCH ──
+async function streamGespräch(text,type,title,api){
+  const outLang=lang==='en'?'English':'German';
+  const prompt=`You are an expert meeting analyst. Analyse this "${type}" meeting: "${title}". Output in ${outLang}.
+Reply ONLY with JSON (no markdown):
+{"uberblick":"3-4 sentence overview","hintergrund":"Background and context","kennzahlen":[{"label":"Label","value":"Value+unit"}],"schmerzpunkte":[{"titel":"Title","text":"Description"}],"erwartungen":[{"titel":"Expectation","zeitrahmen":"when","ressourcen":"what needed","stakeholder":"who"}],"actions":"Numbered next steps","tasks":[{"titel":"Task","frist":"deadline","stakeholder":"who","prio":"HIGH/MEDIUM/LOW"}],"tips":"2-3 concrete tips for this situation","whatsapp":"Short friendly follow-up WhatsApp max 3 sentences with regards","emailSubject":"Professional email subject","emailBody":"Complete professional follow-up email"}
+Transcript:\n${text.slice(0,12000)}`;
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':api,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2500,stream:true,messages:[{role:'user',content:prompt}]})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+  const reader=r.body.getReader();const dec=new TextDecoder();let full='';
+  while(true){const{done,value}=await reader.read();if(done)break;const chunk=dec.decode(value);for(const line of chunk.split('\n')){if(line.startsWith('data: ')){try{const d=JSON.parse(line.slice(6));if(d.type==='content_block_delta'&&d.delta?.text){full+=d.delta.text;streamPreview(full);}}catch{}}}}
+  const clean=full.trim().replace(/```json|```/g,'').trim();
+  try{return JSON.parse(clean);}
+  catch{return{uberblick:full,hintergrund:'',kennzahlen:[],schmerzpunkte:[],erwartungen:[],actions:'',tasks:[],tips:'',whatsapp:'',emailSubject:'Follow-up',emailBody:full};}
+}
+
+function streamPreview(text){
+  const g=k=>{const rx=new RegExp('"'+k+'"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"');const m=rx.exec(text);return m?m[1].replace(/\\n/g,'\n').replace(/\\"/g,'"'):null;};
+  const u=g('uberblick');if(u)document.getElementById('res-uberblick').textContent=u;
+  const h=g('hintergrund');if(h)document.getElementById('res-hintergrund').textContent=h;
+  const a=g('actions');if(a)document.getElementById('res-actions').textContent=a;
+  const t=g('tips');if(t)document.getElementById('res-tips').textContent=t;
+  const wa=g('whatsapp');if(wa)document.getElementById('res-wa').textContent=wa;
+  const es=g('emailSubject');if(es)document.getElementById('res-subject').textContent=es;
+  const eb=g('emailBody');if(eb)document.getElementById('res-email').textContent=eb;
+}
+
+function renderResults(p){
+  document.getElementById('res-uberblick').textContent=p.uberblick||'';
+  document.getElementById('res-hintergrund').textContent=p.hintergrund||'';
+  document.getElementById('res-actions').textContent=p.actions||'';
+  document.getElementById('res-tips').textContent=p.tips||'';
+  document.getElementById('res-wa').textContent=p.whatsapp||'';
+  document.getElementById('res-subject').textContent=p.emailSubject||'';
+  document.getElementById('res-email').textContent=p.emailBody||'';
+  const kz=p.kennzahlen||[];
+  if(kz.length>0){document.getElementById('kz-block').style.display='block';document.getElementById('res-kz').innerHTML=kz.map(k=>`<div class="kz-item"><div class="kz-val">${k.value||'–'}</div><div class="kz-lbl">${k.label||''}</div></div>`).join('');}
+  else document.getElementById('kz-block').style.display='none';
+  document.getElementById('res-schmerz').innerHTML=(p.schmerzpunkte||[]).length>0?(p.schmerzpunkte||[]).map(s=>`<div class="pain-item"><div class="pain-title">⚡ ${s.titel||''}</div><div class="pain-text">${s.text||''}</div></div>`).join(''):`<p style="font-size:12px;color:var(--g5);">${T.noS}</p>`;
+  document.getElementById('res-erwartungen').innerHTML=(p.erwartungen||[]).length>0?(p.erwartungen||[]).map(e=>`<div class="erw-item"><div class="erw-title">🎯 ${e.titel||''}</div>${e.zeitrahmen?`<div class="erw-row"><span class="erw-key">${lang==='en'?'Timeline':'Zeitrahmen'}</span><span class="erw-val">${e.zeitrahmen}</span></div>`:''}${e.ressourcen?`<div class="erw-row"><span class="erw-key">${lang==='en'?'Resources':'Ressourcen'}</span><span class="erw-val">${e.ressourcen}</span></div>`:''}${e.stakeholder?`<div class="erw-row"><span class="erw-key">Stakeholder</span><span class="erw-val">${e.stakeholder}</span></div>`:''}</div>`).join(''):`<p style="font-size:12px;color:var(--g5);">${T.noE}</p>`;
+  renderTasks('res-tasks',p.tasks||[]);
+}
+
+function renderTasks(id,tasks){
+  const el=document.getElementById(id);if(!el)return;
+  if(!tasks||!tasks.length){el.innerHTML=`<p style="font-size:12px;color:var(--g5);">${T.noT}</p>`;return;}
+  el.innerHTML=tasks.map((t,i)=>{const pc=t.prio?.toUpperCase().startsWith('H')?'badge-prio-h':t.prio?.toUpperCase().startsWith('L')?'badge-prio-l':'badge-prio-m';return`<div class="task-item"><div class="task-check" id="tc-${id}-${i}" onclick="toggleTask('${id}',${i})"></div><div class="task-content"><div class="task-title">${t.titel||''}</div><div class="task-meta">${t.frist?`<span class="task-badge badge-frist">⏰ ${t.frist}</span>`:''}${t.stakeholder?`<span class="task-badge badge-stakeholder">👤 ${t.stakeholder}</span>`:''}${t.prio?`<span class="task-badge ${pc}">${t.prio}</span>`:''}</div></div></div>`;}).join('');
+}
+function toggleTask(id,i){const el=document.getElementById('tc-'+id+'-'+i);const done=!el.classList.contains('done');el.classList.toggle('done',done);el.textContent=done?'✓':'';const t=el.nextElementSibling?.querySelector('.task-title');if(t)t.style.textDecoration=done?'line-through':'';}
+
+function renderSpk(id,lines){
+  const c=document.getElementById(id);if(!c)return;
+  if(!lines||!lines.length){c.innerHTML='<span style="font-size:12px;color:var(--g5);">No transcript</span>';return;}
+  c.innerHTML=lines.map(l=>{const cls=l.speaker?.toLowerCase().includes('a')||l.speaker?.toLowerCase().includes('host')||l.speaker?.toLowerCase().includes('sales')||l.speaker?.toLowerCase().includes('klaus')?'spk-k':'spk-c';return`<div class="spk-line"><div class="spk-name ${cls}">${l.speaker}</div><div class="spk-text">${l.text}</div></div>`;}).join('');
+}
+
+// ── ANGEBOTSBRIEF ──
+async function generateAngebot(){
+  const api=localStorage.getItem('pvg_api');if(!api){showToast(T.errApi);return;}
+  if(!lastAngebotNote?.raw){showToast(T.noConv);return;}
+  const btn=document.getElementById('btn-gen-angebot');
+  btn.disabled=true; btn.textContent=T.angebotLoading;
+  try{
+    const outLang=lang==='en'?'English':'German';
+    const n=lastAngebotNote;
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':api,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:`You are writing a professional offer/proposal letter for Pilsner Vertriebs GmbH.
+Based on this meeting transcript and analysis, write a complete, professional offer letter in ${outLang}.
+
+Meeting type: ${n.type}
+Title: ${n.title}
+Key figures: ${JSON.stringify(n.kennzahlen||[])}
+Pain points: ${(n.schmerzpunkte||[]).map(s=>s.titel).join(', ')}
+Next steps: ${n.actions}
+
+Write a professional offer letter that:
+- Starts with a personal greeting referencing the meeting
+- Summarises the client's situation and needs
+- Presents the solution/offer clearly
+- Mentions key figures and benefits
+- Has a clear call to action
+- Ends with professional regards from Pilsner Vertriebs GmbH, Detterstraße 38, 94469 Deggendorf
+
+Return ONLY the letter text, no JSON, no markdown formatting.
+
+Transcript context:
+${(n.raw||'').slice(0,4000)}`}]})
+    });
+    const d=await r.json();
+    const angebot=d.content[0].text;
+    document.getElementById('res-angebot').textContent=angebot;
+    document.getElementById('angebot-block').style.display='block';
+    lastAngebotNote.angebot=angebot;
+    // Update saved note
+    const ns=getNotes();const idx=ns.findIndex(x=>x.id===lastAngebotNote.id);
+    if(idx>=0){ns[idx].angebot=angebot;saveNotes(ns);}
+    btn.textContent=T.angebotOk;
+    showToast(T.angebotOk);
+    document.getElementById('angebot-block').scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    showToast('Fehler: '+e.message);
+    btn.disabled=false;
+    btn.textContent=T.btnAngebot;
+  }
+}
+
+async function dlDocxAngebot(){
+  if(!lastAngebotNote?.angebot){showToast('Kein Angebotsbrief vorhanden');return;}
+  const n=lastAngebotNote;
+  const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const p=t=>`<w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr><w:t xml:space="preserve">${esc(t)}</w:t></w:r></w:p>`;
+  const xml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>
+    <w:p><w:pPr><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="1D4ED8"/><w:sz w:val="28"/></w:rPr><w:t>PILSNER VERTRIEBS GMBH</w:t></w:r></w:p>
+    <w:p><w:pPr><w:spacing w:after="200"/></w:pPr><w:r><w:rPr><w:color w:val="888888"/><w:sz w:val="18"/></w:rPr><w:t>Detterstraße 38 · 94469 Deggendorf</w:t></w:r></w:p>
+    ${(n.angebot||'').split('\n').map(l=>p(l)).join('')}
+    <w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1800" w:right="1800" w:bottom="1800" w:left="1800"/></w:sectPr>
+  </w:body></w:document>`;
+  if(!window.JSZip) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+  const zip=new JSZip();
+  zip.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`);
+  zip.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
+  zip.file('word/document.xml',xml);
+  zip.file('word/_rels/document.xml.rels',`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`);
+  const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='Angebotsbrief_'+(n.title||'PVG').replace(/[^a-zA-Z0-9äöüÄÖÜß\s-]/g,'')+'.docx';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast(T.wordOk);
+}
+
+// ── PROCESS MEMO ──
+async function processMemo(){
+  const api=localStorage.getItem('pvg_api');if(!api){showToast(T.errApi);switchTab('settings');return;}
+  document.getElementById('mprocessBtn').disabled=true;
+  document.getElementById('memo-results').classList.remove('vis');
+  const pg=document.getElementById('mprog');pg.classList.add('vis');
+  try{
+    setS('mp',1,'active');let rawText='';
+    if(mCurMode==='text'){rawText=document.getElementById('memo-text').value;if(!rawText.trim()){showToast(T.errText);pg.classList.remove('vis');resetSteps('mp');document.getElementById('mprocessBtn').disabled=false;return;}setS('mp',1,'done');setS('mp',2,'done');}
+    else{const blob=mCurMode==='mic'?recStore['m']?.blob:mUpFile;if(!blob){showToast(T.errNoRec);pg.classList.remove('vis');resetSteps('mp');document.getElementById('mprocessBtn').disabled=false;return;}const b64=await toB64(blob);setS('mp',1,'done');setS('mp',2,'active');rawText=await transcribeDirect(b64,blob.type,api);}
+    setS('mp',2,'done');setS('mp',3,'active');
+    document.getElementById('memo-results').classList.add('vis');
+    document.getElementById('mres-raw').textContent=rawText;
+    const title=document.getElementById('memo-title').value||'Note '+new Date().toLocaleDateString();
+    const parsed=await streamMemo(rawText,api);
+    setS('mp',3,'done');setS('mp',4,'done');
+    document.getElementById('mres-summary').textContent=parsed.summary||'';
+    document.getElementById('mres-ideas').textContent=parsed.ideas||'';
+    renderTasks('mres-tasks',parsed.tasks||[]);
+    const note={id:Date.now(),kind:'notiz',title,date:new Date().toISOString(),duration:recStore['m']?.secs||0,raw:rawText,...parsed};
+    const ns=getNotes();ns.unshift(note);saveNotes(ns);lastMemo=note;
+    showToast(T.memoOk);
+    setTimeout(()=>{pg.classList.remove('vis');resetSteps('mp');},400);
+    if(driveToken) try{await driveUploadNote(note);}catch{}
+  }catch(e){showToast('Fehler: '+e.message.slice(0,35));document.getElementById('mprog').classList.remove('vis');resetSteps('mp');document.getElementById('mprocessBtn').disabled=false;}
+}
+
+async function streamMemo(text,api){
+  const outLang=lang==='en'?'English':'German';
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':api,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,stream:true,messages:[{role:'user',content:`Structure this voice note/memo. Output in ${outLang}. JSON only:\n{"summary":"2-3 sentence summary","tasks":[{"titel":"Task","frist":"when","stakeholder":"who","prio":"HIGH/MEDIUM/LOW"}],"ideas":"Key ideas and points"}\n\nNote:\n${text}`}]})});
+  if(!r.ok) throw new Error('Analysis failed');
+  const reader=r.body.getReader();const dec=new TextDecoder();let full='';
+  while(true){const{done,value}=await reader.read();if(done)break;const chunk=dec.decode(value);for(const line of chunk.split('\n')){if(line.startsWith('data: ')){try{const d=JSON.parse(line.slice(6));if(d.type==='content_block_delta'&&d.delta?.text){full+=d.delta.text;}}catch{}}}}
+  const clean=full.trim().replace(/```json|```/g,'').trim();
+  try{return JSON.parse(clean);}catch{return{summary:full,tasks:[],ideas:''};}
+}
+
+// ── GOOGLE DRIVE ──
+function saveClientId(){
+  const id=document.getElementById('gdrive-client-id').value.trim();
+  if(!id){showToast('Bitte Client-ID eingeben');return;}
+  driveClientId=id;
+  localStorage.setItem('pvg_drive_client_id',id);
+  showToast('Client-ID gespeichert ✓');
+  updDriveUI();
+}
+
+function connectDrive(){
+  if(!driveClientId){showToast(lang==='en'?'Please enter Google Client-ID first':'Bitte zuerst Google Client-ID eintragen');return;}
+  // Use Google Identity Services token client
+  if(!window.google?.accounts?.oauth2){showToast('Google-Skript lädt noch...');return;}
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:driveClientId,
+    scope:'https://www.googleapis.com/auth/drive.file',
+    callback:(response)=>{
+      if(response.error){showToast(T.driveErr+response.error);return;}
+      driveToken=response.access_token;
+      sessionStorage.setItem('pvg_drive_token',driveToken);
+      showToast(T.driveConn);
+      updDriveUI();
+      showDriveStatus(T.driveConn,'ok');
+    }
+  });
+  client.requestAccessToken();
+}
+
+function disconnectDrive(){
+  driveToken=null;
+  sessionStorage.removeItem('pvg_drive_token');
+  showToast(T.driveDisconn);
+  updDriveUI();
+}
+
+function updDriveUI(){
+  const connected=!!driveToken;
+  const hasClientId=!!driveClientId;
+  document.getElementById('gdrive-btn').textContent=connected?'☁ ✓':'☁ Drive';
+  document.getElementById('gdrive-btn').className='gdrive-btn'+(connected?' connected':'');
+  document.getElementById('btn-connect-drive').style.display=connected?'none':'block';
+  document.getElementById('btn-manual-backup').style.display=connected?'block':'none';
+  document.getElementById('btn-disconnect-drive').style.display=connected?'block':'none';
+  document.getElementById('gdrive-client-id-wrap').style.display=connected?'none':'block';
+  document.getElementById('gdrive-info').textContent=connected?'✓ Verbunden – neue Notizen werden automatisch gesichert':'Nicht verbunden';
+}
+
+async function driveUploadNote(note){
+  if(!driveToken) return;
+  const filename=`PVG_${note.date.slice(0,10)}_${(note.title||'note').replace(/[^a-zA-Z0-9äöüÄÖÜß_-]/g,'_').slice(0,40)}.json`;
+  const content=JSON.stringify(note,null,2);
+  // Create file in Drive
+  const meta={name:filename,mimeType:'application/json',parents:['root']};
+  const form=new FormData();
+  form.append('metadata',new Blob([JSON.stringify(meta)],{type:'application/json'}));
+  form.append('file',new Blob([content],{type:'application/json'}));
+  const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+driveToken},
+    body:form
+  });
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Drive upload failed');}
+  return await r.json();
+}
+
+async function manualBackup(){
+  if(!driveToken){showToast('Nicht verbunden');return;}
+  const notes=getNotes();
+  let ok=0,fail=0;
+  showToast('Backup läuft...');
+  for(const note of notes){
+    try{await driveUploadNote(note);ok++;}catch{fail++;}
+  }
+  showToast(`☁ ${ok} gespeichert${fail>0?' · '+fail+' Fehler':''}`);
+}
+
+function showDriveStatus(msg,type){
+  const el=document.getElementById('drive-status');
+  el.textContent=msg;
+  el.className='drive-status vis'+(type==='err'?' err':'');
+  setTimeout(()=>el.classList.remove('vis'),5000);
+}
+
+// ── ASK AI ──
+function resetChat(){
+  document.getElementById('chat-msgs').innerHTML=`<div class="chat-msg ai">${T.chatWelcome}</div>`;
+  document.getElementById('chat-suggs').innerHTML=T.chatSuggs.map(s=>`<button class="chat-sugg" onclick="sendSugg(this)">${s}</button>`).join('');
+  document.getElementById('chat-suggs').style.display='flex';
+}
+function sendSugg(btn){document.getElementById('chat-input').value=btn.textContent;document.getElementById('chat-suggs').style.display='none';sendChat();}
+async function sendChat(){
+  const inp=document.getElementById('chat-input');const q=inp.value.trim();if(!q)return;
+  const api=localStorage.getItem('pvg_api');if(!api){showToast(T.errApi);return;}
+  if(!chatContext){showToast(T.noConv);return;}
+  inp.value='';addMsg(q,'user');
+  const el=addMsg('...','thinking');
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':api,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:`Answer in ${lang==='en'?'English':'German'}. Question about meeting:\n${q}\n\nTranscript:\n${chatContext.slice(0,6000)}`}]})});
+    const d=await r.json();el.className='chat-msg ai';el.textContent=d.content[0].text;
+  }catch(e){el.className='chat-msg ai';el.textContent='Error: '+e.message;}
+  const msgs=document.getElementById('chat-msgs');msgs.scrollTop=msgs.scrollHeight;
+}
+function addMsg(text,type){const msgs=document.getElementById('chat-msgs');const el=document.createElement('div');el.className='chat-msg '+type;el.textContent=text;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;return el;}
+
+// ── MAIL ──
+function openMail(){const s=document.getElementById('res-subject')?.textContent||'';const b=document.getElementById('res-email')?.textContent||'';window.location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(b)}`;}
+function openDetMail(){if(!curNote)return;window.location.href=`mailto:?subject=${encodeURIComponent(curNote.emailSubject||'')}&body=${encodeURIComponent(curNote.emailBody||curNote.whatsapp||'')}`;}
+function cpEl(id,lbl){navigator.clipboard.writeText(document.getElementById(id)?.textContent||'').then(()=>showToast((lbl?lbl+' ':'')+(T.cpOk||'✓')));}
+
+// ── ARCHIVE ──
+function setFilter(f){curFilter=f;document.querySelectorAll('.ftab').forEach((t,i)=>t.classList.toggle('active',['alle','gespräch','notiz'][i]===f));renderArchive();}
+function renderArchive(){
+  const q=(document.getElementById('search-input')||{}).value||'';
+  let notes=getNotes();
+  if(curFilter!=='alle') notes=notes.filter(n=>n.kind===curFilter);
+  if(q) notes=notes.filter(n=>(n.title||'').toLowerCase().includes(q.toLowerCase())||(n.uberblick||n.summary||'').toLowerCase().includes(q.toLowerCase()));
+  const all=getNotes();const c=document.getElementById('archive-list');
+  if(!notes.length){c.innerHTML=`<div class="empty"><div class="empty-icon">🎙</div><div class="empty-title">${T.fAll} – 0</div><div class="empty-sub">${T.timerStart}</div></div>`;return;}
+  c.innerHTML=notes.map(n=>{
+    const ri=all.findIndex(x=>x.id===n.id);const isG=n.kind==='gespräch';
+    const kzC=(n.kennzahlen||[]).length;const taskC=(n.tasks||[]).length;const hasAngebot=!!n.angebot;
+    const dur=n.duration?fmtDur(n.duration):'';
+    return`<div class="note-card" onclick="openDetail(${ri})">
+      <div class="note-hdr"><div class="note-title">${n.title||'–'}</div><div class="note-tag ${isG?'tag-g':'tag-n'}">${isG?T.tagG:T.tagN}</div></div>
+      <div class="note-meta">${fmtD(n.date)}${dur?' · '+dur:''}${kzC>0?' · '+kzC+' KZ':''}${taskC>0?' · '+taskC+' Tasks':''}${hasAngebot?' · 📄':''}</div>
+      <div class="note-prev">${n.uberblick||n.summary||''}</div>
+      <div class="note-acts" onclick="event.stopPropagation()">
+        <div class="note-btn" onclick="openDetail(${ri})">${lang==='en'?'Open':'Öffnen'}</div>
+        ${isG?`<div class="note-btn" onclick="cpIdx(${ri},'whatsapp')">WhatsApp</div>`:`<div class="note-btn" onclick="cpTasksIdx(${ri})">To-Dos</div>`}
+        <div class="note-btn" onclick="dlDocx(getNotes()[${ri}])">Word</div>
+        <div class="note-btn re" onclick="delNote(${ri})">${lang==='en'?'Delete':'Löschen'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function cpIdx(i,f){const n=getNotes()[i];navigator.clipboard.writeText(n[f]||'').then(()=>showToast(T.waOk));}
+function cpTasksIdx(i){const n=getNotes()[i];navigator.clipboard.writeText((n.tasks||[]).map(t=>t.titel+(t.frist?' ('+t.frist+')':'')).join('\n')||'').then(()=>showToast(T.cpOk));}
+
+function openDetail(i){
+  const n=getNotes()[i];if(!n)return;curNote=n;chatContext=n.raw||'';lastAngebotNote=n;
+  document.getElementById('det-title').textContent=n.title||'–';
+  const isG=n.kind==='gespräch';let html='';
+  const ds=(icon,lbl,txt)=>txt?`<div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">${icon}</span><span class="res-block-title">${lbl}</span></div><div class="res-text">${txt}</div></div>`:'';
+  if(isG){
+    html+=ds('📋',T.rhU,n.uberblick);html+=ds('📖',T.rhH,n.hintergrund);
+    if((n.kennzahlen||[]).length>0)html+=`<div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">📊</span><span class="res-block-title">${T.rhKZ}</span></div><div class="kz-grid">${(n.kennzahlen||[]).map(k=>`<div class="kz-item"><div class="kz-val">${k.value||'–'}</div><div class="kz-lbl">${k.label||''}</div></div>`).join('')}</div></div>`;
+    if((n.schmerzpunkte||[]).length>0)html+=`<div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">⚡</span><span class="res-block-title">${T.rhS}</span></div>${(n.schmerzpunkte||[]).map(s=>`<div class="pain-item"><div class="pain-title">⚡ ${s.titel}</div><div class="pain-text">${s.text}</div></div>`).join('')}</div>`;
+    if((n.erwartungen||[]).length>0)html+=`<div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">🎯</span><span class="res-block-title">${T.rhE}</span></div>${(n.erwartungen||[]).map(e=>`<div class="erw-item"><div class="erw-title">🎯 ${e.titel}</div>${e.zeitrahmen?`<div class="erw-row"><span class="erw-key">${lang==='en'?'Timeline':'Zeitrahmen'}</span><span class="erw-val">${e.zeitrahmen}</span></div>`:''}${e.stakeholder?`<div class="erw-row"><span class="erw-key">Stakeholder</span><span class="erw-val">${e.stakeholder}</span></div>`:''}</div>`).join('')}</div>`;
+    html+=ds('✅',T.rhA,n.actions);
+    if((n.tasks||[]).length>0)html+=`<div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">☑️</span><span class="res-block-title">${T.rhT}</span></div><div id="det-tasks"></div></div>`;
+    html+=ds('💡',T.rhTi,n.tips);html+=ds('💬','WhatsApp',n.whatsapp);
+    if(n.emailSubject)html+=ds('✉️',lang==='en'?'Email':'E-Mail',n.emailSubject+'\n\n'+n.emailBody);
+    if(n.angebot)html+=ds('📄',T.rhAngebot,n.angebot);
+    html+=`<div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">🎙</span><span class="res-block-title">${T.rhTr}</span></div><div class="transcript-box" id="det-spk"></div></div>`;
+  }else{
+    html+=ds('📝',T.rhSum,n.summary);
+    if((n.tasks||[]).length>0)html+=`<div class="res-block"><div class="res-block-hdr"><span class="res-block-icon">☑️</span><span class="res-block-title">${T.rhTodos}</span></div><div id="det-tasks"></div></div>`;
+    html+=ds('💡',T.rhIdeas,n.ideas);html+=ds('📄',T.rhFull,n.raw);
+  }
+  document.getElementById('det-body').innerHTML=html;
+  if(isG&&n.spkLines)renderSpk('det-spk',n.spkLines);
+  if((n.tasks||[]).length>0)renderTasks('det-tasks',n.tasks);
+  document.getElementById('detail').classList.add('open');
+}
+function closeDetail(){document.getElementById('detail').classList.remove('open');curNote=null;}
+function delNote(i){if(!confirm(T.delQ))return;const n=getNotes();n.splice(i,1);saveNotes(n);renderArchive();showToast(T.deleted);}
+function cpDet(){if(!curNote)return;const n=curNote;const isG=n.kind==='gespräch';navigator.clipboard.writeText(isG?`${n.title}\n${fmtD(n.date)}\n\n${T.rhU}:\n${n.uberblick||''}\n\n${T.rhA}:\n${n.actions||''}\n\n${T.rhTi}:\n${n.tips||''}`:`${n.title}\n${fmtD(n.date)}\n\n${T.rhSum}:\n${n.summary||''}\n\nTo-Dos:\n${(n.tasks||[]).map(t=>t.titel).join('\n')}`).then(()=>showToast(T.cpOk));}
+function cpDetWA(){if(curNote?.whatsapp)navigator.clipboard.writeText(curNote.whatsapp).then(()=>showToast(T.waOk));}
+
+// ── DOCX ──
+function buildDocx(n){
+  const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const p=(t,b=false,c='333333',sz=22)=>`<w:p><w:pPr><w:spacing w:after="100"/></w:pPr><w:r><w:rPr>${b?'<w:b/>':''}<w:color w:val="${c}"/><w:sz w:val="${sz}"/><w:szCs w:val="${sz}"/></w:rPr><w:t xml:space="preserve">${esc(t)}</w:t></w:r></w:p>`;
+  const h=t=>`<w:p><w:pPr><w:spacing w:before="240" w:after="80"/><w:pBdr><w:bottom w:val="single" w:sz="4" w:space="1" w:color="1D4ED8"/></w:pBdr></w:pPr><w:r><w:rPr><w:b/><w:color w:val="1E40AF"/><w:sz w:val="20"/><w:szCs w:val="20"/><w:caps/></w:rPr><w:t>${esc(t)}</w:t></w:r></w:p>`;
+  const ml=t=>(t||'').split('\n').map(l=>p(l)).join('');
+  const isG=n.kind==='gespräch';
+  const body=isG?`${h(T.rhU)}${ml(n.uberblick)}${h(T.rhH)}${ml(n.hintergrund)}${(n.kennzahlen||[]).length>0?h(T.rhKZ)+(n.kennzahlen||[]).map(k=>p(k.label+': '+k.value)).join(''):''}${(n.schmerzpunkte||[]).length>0?h(T.rhS)+(n.schmerzpunkte||[]).map(s=>p('• '+s.titel+': '+s.text)).join(''):''}${(n.erwartungen||[]).length>0?h(T.rhE)+(n.erwartungen||[]).map(e=>p('• '+e.titel+(e.zeitrahmen?' | '+e.zeitrahmen:'')+(e.stakeholder?' | '+e.stakeholder:''))).join(''):''}${h(T.rhA)}${ml(n.actions)}${(n.tasks||[]).length>0?h(T.rhT)+(n.tasks||[]).map(t=>p('☐ '+t.titel+(t.frist?' — '+t.frist:'')+(t.stakeholder?' — '+t.stakeholder:''))).join(''):''}${h(T.rhTi)}${ml(n.tips)}${h('WhatsApp')}${ml(n.whatsapp)}${n.emailSubject?h('E-Mail')+ml(n.emailSubject+'\n\n'+n.emailBody):''}${n.angebot?h(T.rhAngebot)+ml(n.angebot):''}${(n.spkLines||[]).length>0?h(T.rhTr)+(n.spkLines||[]).map(l=>`<w:p><w:pPr><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="1D4ED8"/><w:sz w:val="18"/></w:rPr><w:t>${esc(l.speaker)}: </w:t></w:r><w:r><w:rPr><w:color w:val="444444"/><w:sz w:val="20"/></w:rPr><w:t xml:space="preserve">${esc(l.text)}</w:t></w:r></w:p>`).join(''):''}`:
+  `${h(T.rhSum)}${ml(n.summary)}${(n.tasks||[]).length>0?h(T.rhTodos)+(n.tasks||[]).map(t=>p('☐ '+t.titel+(t.frist?' — '+t.frist:''))).join(''):''}${h(T.rhIdeas)}${ml(n.ideas)}${h(T.rhFull)}${ml(n.raw)}`;
+  return`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${p('PILSNER VERTRIEBS GMBH',true,'1D4ED8',30)}${p(n.title||'',true,'111111',28)}${p((n.type||'')+' · '+fmtD(n.date)+(n.duration?' · '+fmtDur(n.duration):''),false,'888888',18)}<w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>${body}${p('Pilsner Vertriebs GmbH · Detterstraße 38 · 94469 Deggendorf',false,'aaaaaa',16)}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>`;
+}
+async function dlDocx(n){
+  if(!n)return;const xml=buildDocx(n);
+  if(!window.JSZip) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+  const zip=new JSZip();
+  zip.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`);
+  zip.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
+  zip.file('word/document.xml',xml);
+  zip.file('word/_rels/document.xml.rels',`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`);
+  const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=(n.title||'PVG').replace(/[^a-zA-Z0-9äöüÄÖÜß\s-]/g,'')+'_PVG.docx';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast(T.wordOk);
+}
+function dlDocxDet(){if(curNote)dlDocx(curNote);}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+
+// ── PDF ──
+function exportPDF(n){
+  if(!n)return;const isG=n.kind!=='notiz';
+  const spkHtml=isG?(n.spkLines||[]).map(l=>`<div class="sl"><span class="${l.speaker?.toLowerCase().includes('a')||l.speaker?.toLowerCase().includes('host')||l.speaker?.toLowerCase().includes('sales')||l.speaker?.toLowerCase().includes('klaus')?'a':'b'}">${l.speaker}:</span> ${l.text}</div>`).join(''):'';
+  const kzHtml=isG&&(n.kennzahlen||[]).length>0?`<div class="kz">${(n.kennzahlen||[]).map(k=>`<div class="kz-i"><div class="kz-v">${k.value||'–'}</div><div class="kz-l">${k.label||''}</div></div>`).join('')}</div>`:'';
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:'Helvetica Neue',Arial,sans-serif;max-width:640px;margin:40px auto;color:#333;padding:20px}.co{color:#1d4ed8;font-size:14px;font-weight:700}h1{font-size:18px;color:#111;margin-bottom:4px}.meta{color:#888;font-size:10px;margin-bottom:22px}h2{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#1d4ed8;margin:18px 0 7px;border-bottom:1px solid #bfdbfe;padding-bottom:3px}p{font-size:12px;line-height:1.8;white-space:pre-wrap;color:#444;margin-bottom:4px}.sl{margin-bottom:7px;font-size:11px;line-height:1.6}.a{font-weight:700;color:#1d4ed8;margin-right:5px}.b{font-weight:700;color:#d97706;margin-right:5px}.kz{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:8px 0}.kz-i{text-align:center;border:1px solid #bfdbfe;border-radius:6px;padding:8px}.kz-v{font-weight:800;color:#1d4ed8;font-size:16px}.kz-l{font-size:9px;color:#888}.footer{margin-top:28px;border-top:1px solid #eee;padding-top:10px;font-size:9px;color:#aaa}</style></head><body>
+  <div class="co">PILSNER VERTRIEBS GMBH</div><h1>${n.title||''}</h1>
+  <div class="meta">${n.type?n.type+' · ':''} ${fmtD(n.date)}${n.duration?' · '+fmtDur(n.duration):''}</div>
+  ${isG?`<h2>${T.rhU}</h2><p>${n.uberblick||'–'}</p><h2>${T.rhH}</h2><p>${n.hintergrund||'–'}</p>${kzHtml?'<h2>'+T.rhKZ+'</h2>'+kzHtml:''}<h2>${T.rhA}</h2><p>${n.actions||'–'}</p><h2>${T.rhTi}</h2><p>${n.tips||'–'}</p><h2>WhatsApp</h2><p>${n.whatsapp||'–'}</p>${n.angebot?'<h2>'+T.rhAngebot+'</h2><p>'+n.angebot+'</p>':''}${spkHtml?'<h2>'+T.rhTr+'</h2>'+spkHtml:''}`:`<h2>${T.rhSum}</h2><p>${n.summary||'–'}</p><h2>${T.rhIdeas}</h2><p>${n.ideas||'–'}</p><h2>${T.rhFull}</h2><p>${n.raw||'–'}</p>`}
+  <div class="footer">Pilsner Vertriebs GmbH · Detterstraße 38 · 94469 Deggendorf</div>
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),600);
+}
+function exportPDFdet(){if(curNote)exportPDF(curNote);}
+
+// ── STORAGE ──
+function getNotes(){try{return JSON.parse(localStorage.getItem('pvg_notes')||'[]');}catch{return[];}}
+function saveNotes(n){localStorage.setItem('pvg_notes',JSON.stringify(n));}
+
+// ── SETTINGS ──
+function saveKey(){const k=document.getElementById('api-key-input').value.trim();if(!k.startsWith('sk-ant-')){showToast('Ungültiger Key');return;}localStorage.setItem('pvg_api',k);showToast(T.ok);checkApi();}
+function clearAll(){if(!confirm(T.clearQ))return;localStorage.clear();sessionStorage.clear();document.getElementById('api-key-input').value='';driveToken=null;driveClientId=null;renderArchive();updDriveUI();showToast(T.deleted);}
+function checkApi(){const h=!!localStorage.getItem('pvg_api');['api-warn','api-warn-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=h?'none':'block';});}
+
+// ── STEPS ──
+function setS(pfx,n,s){const ps=document.getElementById(pfx+'s'+n),pd=document.getElementById(pfx+'d'+n);if(!ps||!pd)return;ps.className='pstep '+s;pd.className='pdot '+s;if(s==='done')pd.textContent='✓';}
+function resetSteps(pfx){[1,2,3,4,5].forEach(n=>{const ps=document.getElementById(pfx+'s'+n);const pd=document.getElementById(pfx+'d'+n);if(!ps||!pd)return;ps.className='pstep';pd.className='pdot';pd.textContent=n===4?'✓':n===5?'☁':n;});}
+
+// ── UTILS ──
+function toB64(b){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b);});}
+function fmtD(iso){if(!iso)return'';return new Date(iso).toLocaleDateString(lang==='en'?'en-GB':'de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function fmtDur(s){if(!s)return'';return`${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')} Min`;}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+</script>
+</body>
+</html>
